@@ -1,0 +1,7 @@
+# Served at the origin host (e.g. <project>.vercel.app).
+# Only a robots.txt at a domain root is honoured, so the rule that actually protects
+# /antismashtableconverter/api/ must live in robertsamples.com/robots.txt as well.
+# See README, "Crawling and indexing".
+
+User-agent: *
+Disallow: /api/

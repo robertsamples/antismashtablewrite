@@ -1,0 +1,9 @@
+name = "antismashtableconverter-proxy"
+main = "worker.js"
+compatibility_date = "2024-11-01"
+
+# The zone must be proxied through Cloudflare for a route to fire.
+routes = [
+  { pattern = "robertsamples.com/antismashtableconverter*", zone_name = "robertsamples.com" },
+  { pattern = "www.robertsamples.com/antismashtableconverter*", zone_name = "robertsamples.com" },
+]

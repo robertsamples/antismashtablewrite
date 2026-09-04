@@ -1,0 +1,22 @@
+{
+  "name": "antismash-table-write",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Turn an antiSMASH results URL into an XLSX table of the detected gene clusters (regions).",
+  "bin": {
+    "antismash-table": "./cli.js"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "cli": "node cli.js",
+    "dev": "vercel dev"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "exceljs": "^4.4.0"
+  }
+}
