@@ -3,220 +3,170 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>antiSMASH Table Converter | Export Regions to Excel</title>
-<meta name="description" content="Paste an antiSMASH results URL and download an Excel spreadsheet of every biosynthetic gene cluster: coordinates, cluster class, most similar known MIBiG cluster, and similarity scores." />
-<link rel="canonical" href="https://robertsamples.com/antismashtableconverter/" />
+<title>antiSMASH Table Generator &middot; Robert Samples</title>
+<meta name="description" content="Paste an antiSMASH results URL and download an .xlsx table of the detected regions: coordinates, cluster class, most similar known cluster, and similarity scores." />
+<link rel="canonical" href="https://www.robertsamples.com/antismashtableconverter/" />
 <meta property="og:type" content="website" />
-<meta property="og:title" content="antiSMASH Table Converter" />
-<meta property="og:description" content="Turn an antiSMASH results page into an Excel table of its biosynthetic gene clusters." />
-<meta property="og:url" content="https://robertsamples.com/antismashtableconverter/" />
+<meta property="og:title" content="antiSMASH Table Generator" />
+<meta property="og:description" content="Turn an antiSMASH results page into an .xlsx table of its biosynthetic gene clusters." />
+<meta property="og:url" content="https://www.robertsamples.com/antismashtableconverter/" />
 <meta name="twitter:card" content="summary" />
 <style>
   :root {
-    color-scheme: light dark;
-    --bg: #f6f7f5;
-    --card: #ffffff;
-    --ink: #1c2321;
-    --muted: #5d6b66;
-    --line: #d9e0dc;
-    --accent: #1f4e5f;
-    --accent-ink: #ffffff;
+    color-scheme: light;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --font-serif: Charter, "Bitstream Charter", "Sitka Text", Cambria, Georgia, serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --paper: #f4f1e8;
+    --ink: #4a443a;
+    --muted: #6f6a5e;
+    --rule: #e2dbcc;
+    --link: #4a6a82;
+    --link-rule: #b9c7d1;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #14181a;
-      --card: #1c2124;
-      --ink: #e8ecea;
-      --muted: #9aa8a3;
-      --line: #2e3639;
-      --accent: #6fb3c4;
-      --accent-ink: #0d1417;
-    }
-  }
-  * { box-sizing: border-box; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    margin: 0;
-    padding: 40px 20px 72px;
-    background: var(--bg);
+    background: var(--paper);
     color: var(--ink);
-    font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-    display: flex;
-    justify-content: center;
+    font-family: var(--font-serif);
+    font-size: 17px;
+    line-height: 1.625;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
-  main { width: 100%; max-width: 720px; }
-  h1 { font-size: 27px; line-height: 1.25; margin: 0 0 10px; letter-spacing: -0.015em; }
-  h2 { font-size: 19px; margin: 40px 0 10px; letter-spacing: -0.01em; }
-  h3 { font-size: 16px; margin: 24px 0 6px; }
-  p { margin: 0 0 14px; }
-  p.lede { font-size: 17px; color: var(--muted); margin-bottom: 26px; }
-  a { color: var(--accent); }
-  form {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 20px;
+  a {
+    color: var(--link);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--link-rule);
+    text-underline-offset: 2px;
   }
-  label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+  .wrap { max-width: 64rem; margin: 0 auto; padding: 0 1.5rem; }
+  .cols { display: flex; flex-direction: column; gap: 2rem; padding-top: 2rem; }
+  @media (min-width: 48rem) {
+    .cols { flex-direction: row; gap: 3rem; padding-top: 3rem; }
+    aside { width: 14rem; }
+    nav { flex-direction: column; gap: 0.375rem; }
+  }
+  aside { flex-shrink: 0; }
+  .name { font-size: 1.125rem; font-weight: 600; line-height: 1.4; }
+  .name a, nav a { color: var(--ink); text-decoration: none; }
+  .role { margin-top: 0.25rem; font-size: 0.875rem; color: var(--muted); line-height: 1.5; }
+  nav { margin-top: 1.25rem; display: flex; gap: 1rem; }
+  nav a.inactive { color: var(--muted); }
+  nav a.inactive:hover { color: var(--ink); }
+  main { flex: 1; min-width: 0; }
+  h1 { font-size: 1.5rem; font-weight: 400; line-height: 1.35; }
+  h2 { font-size: 1.125rem; font-weight: 400; }
+  section { margin-top: 2rem; }
+  section > * + * { margin-top: 0.75rem; }
+  p.lede { margin-top: 0.75rem; }
+  code { font-family: var(--font-mono); font-size: 0.9em; }
+  form { margin-top: 1.75rem; border: 1px solid var(--rule); padding: 1.25rem; }
+  label { display: block; font-size: 0.875rem; color: var(--muted); margin-bottom: 0.4rem; }
   input[type=url] {
     width: 100%;
-    padding: 11px 12px;
     font: inherit;
     color: inherit;
-    background: transparent;
-    border: 1px solid var(--line);
-    border-radius: 8px;
+    padding: 0.5rem 0.6rem;
+    background: #faf8f2;
+    border: 1px solid var(--rule);
   }
-  input[type=url]:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
-  .actions { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+  input[type=url]:focus { outline: 2px solid var(--link); outline-offset: 1px; }
+  .actions { display: flex; gap: 0.6rem; margin-top: 0.9rem; flex-wrap: wrap; }
   button {
-    font: inherit;
-    font-weight: 600;
-    padding: 10px 18px;
-    border-radius: 8px;
-    border: 1px solid var(--accent);
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--link);
+    background: var(--link);
+    color: #fff;
     cursor: pointer;
-    background: var(--accent);
-    color: var(--accent-ink);
   }
-  button.secondary { background: transparent; color: var(--accent); }
-  .note { font-size: 14px; color: var(--muted); margin-top: 12px; }
-  .table-wrap { overflow-x: auto; }
-  table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
-  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
-  th { font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
-  td:first-child { white-space: nowrap; font-weight: 600; }
-  code {
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 13.5px;
-    background: color-mix(in srgb, var(--ink) 8%, transparent);
-    padding: 1px 5px;
-    border-radius: 4px;
-  }
-  ul { padding-left: 20px; }
-  li { margin-bottom: 6px; }
-  footer { margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 14px; color: var(--muted); }
+  button.secondary { background: transparent; color: var(--link); border-color: var(--link-rule); }
+  .hint { margin-top: 0.8rem; font-size: 0.875rem; color: var(--muted); }
+  ul { padding-left: 1.25rem; }
+  ul li { margin-top: 0.35rem; }
+  ul li::marker { color: var(--muted); }
+  footer { margin-top: 2.5rem; border-top: 1px solid var(--rule); padding: 1.25rem 0; font-size: 0.875rem; color: var(--muted); }
+  footer p + p { margin-top: 0.375rem; }
+  footer .sep { padding: 0 0.375rem; }
 </style>
 </head>
 <body>
-<main>
-  <h1>antiSMASH Table Converter</h1>
-  <p class="lede">Paste the URL of an antiSMASH results page and download a spreadsheet of every
-  biosynthetic gene cluster it found — coordinates, cluster class, the most similar known cluster,
-  and similarity scores, one row per region.</p>
+<div class="wrap">
+  <div class="cols">
+    <aside>
+      <p class="name"><a href="/">Robert Samples</a></p>
+      <p class="role">Technical Director of Mass Spectrometry<br />Center for Mass Spectrometry<br />Smith College</p>
+      <nav>
+        <a class="inactive" href="/">About</a>
+        <a class="inactive" href="/publications">Publications</a>
+        <a aria-current="page" href="/tools">Tools</a>
+      </nav>
+    </aside>
 
-  <form action="api/table" method="get">
-    <label for="url">antiSMASH results URL</label>
-    <input
-      id="url"
-      type="url"
-      name="url"
-      required
-      spellcheck="false"
-      placeholder="https://antismash.secondarymetabolites.org/upload/&hellip;/index.html"
-    />
-    <div class="actions">
-      <button type="submit">Download .xlsx</button>
-      <button class="secondary" type="submit" name="format" value="json">View as JSON</button>
-    </div>
-    <p class="note">The index page, the job directory, or any download link from inside the job
-    all work. Large jobs take a few seconds.</p>
-  </form>
+    <main>
+      <h1>antiSMASH Table Generator</h1>
+      <p class="lede">Paste the URL of an antiSMASH job. You get an <code>.xlsx</code> table of
+      the regions it detected, one row each.</p>
 
-  <h2>Why this exists</h2>
-  <p>antiSMASH reports a genome's biosynthetic gene clusters as an interactive HTML page. That
-  page is excellent for reading one region at a time, but it resists the thing people usually
-  want next: a table they can sort, filter, and paste into a manuscript or a supplementary file.
-  Pulling 30-odd regions out by hand — clicking each one, copying coordinates, noting the MIBiG
-  match — is slow and error-prone, and it has to be redone every time the job is rerun.</p>
-  <p>This tool reads the results directly from the job's own data files and writes the table for
-  you. Nothing is uploaded and no genome data is stored: the job URL you paste is fetched
-  server-side, converted, and returned as a spreadsheet.</p>
+      <form action="api/table" method="get">
+        <label for="url">antiSMASH results URL</label>
+        <input
+          id="url"
+          type="url"
+          name="url"
+          required
+          spellcheck="false"
+          placeholder="https://antismash.secondarymetabolites.org/upload/&hellip;/index.html"
+        />
+        <div class="actions">
+          <button type="submit">Download .xlsx</button>
+          <button class="secondary" type="submit" name="format" value="json">View as JSON</button>
+        </div>
+        <p class="hint">The index page, the job directory, or any download link from the job all
+        work. Large jobs take a few seconds.</p>
+      </form>
 
-  <h2>What you get</h2>
-  <p>The workbook has three sheets. <strong>Regions</strong> is the main table, one row per
-  region:</p>
+      <section>
+        <h2>What is in the workbook</h2>
+        <p>The <strong>Regions</strong> sheet gives record, cluster class and category, start,
+        end, length, gene count, protocluster count, a contig edge flag, the most similar known
+        MIBiG cluster with its accession, type and similarity score, the best ClusterBlast and
+        SubClusterBlast hits, and a link back to the region in the report.</p>
+        <p>Two further sheets hold every ranked KnownClusterBlast hit per region, and the job
+        details: antiSMASH version, input file, strictness, counts, source URL.</p>
+      </section>
 
-  <div class="table-wrap">
-  <table>
-    <thead>
-      <tr><th>Column</th><th>What it holds</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>Region</td><td>Region number as antiSMASH labels it, e.g. <code>12.1</code></td></tr>
-      <tr><td>Record / contig</td><td>The sequence record the region sits on</td></tr>
-      <tr><td>Cluster class</td><td>Detected product type — <code>T1PKS</code>, <code>NRPS</code>, <code>terpene</code>, <code>RiPP-like</code>, and so on; hybrid regions list every class</td></tr>
-      <tr><td>Category</td><td>Broader grouping antiSMASH assigns the products (PKS, NRPS, RiPP, terpene, other)</td></tr>
-      <tr><td>Start, End, Length</td><td>Cluster boundaries in base pairs, plus the span</td></tr>
-      <tr><td>Genes</td><td>Number of ORFs inside the region</td></tr>
-      <tr><td>Protoclusters</td><td>How many protoclusters were merged into the region — greater than one means a hybrid</td></tr>
-      <tr><td>On contig edge</td><td><code>yes</code> when the region runs off the end of its contig and may be truncated</td></tr>
-      <tr><td>Most similar known cluster</td><td>The MIBiG entry antiSMASH names as the closest characterized cluster</td></tr>
-      <tr><td>MIBiG BGC</td><td>Accession, hyperlinked to the MIBiG database entry</td></tr>
-      <tr><td>Known cluster type</td><td>Product class of that known cluster</td></tr>
-      <tr><td>Similarity (%)</td><td>KnownClusterBlast similarity to the cluster named in the same row</td></tr>
-      <tr><td>Similarity confidence</td><td>antiSMASH 8's High / Medium / Low call (older versions report a percentage here instead)</td></tr>
-      <tr><td>Best ClusterBlast hit</td><td>Closest region in the genome database, with accession and similarity</td></tr>
-      <tr><td>Best subcluster hit</td><td>Closest SubClusterBlast match, with similarity</td></tr>
-      <tr><td>Link</td><td>Deep link straight back to that region in the original report</td></tr>
-    </tbody>
-  </table>
+      <section>
+        <h2>Notes</h2>
+        <ul>
+          <li>Values are read from the job's own output files. Nothing is recomputed.</li>
+          <li>KnownClusterBlast ranks hits by matched gene count rather than percentage, so the
+            similarity column always reports the score for the cluster named in the same row.</li>
+          <li>Built against antiSMASH 8. Older output is handled where possible but untested.</li>
+          <li><a href="https://github.com/robertsamples/antismashtablewrite">Source and a command
+            line version</a> are on GitHub.</li>
+        </ul>
+      </section>
+    </main>
   </div>
 
-  <p><strong>Known cluster hits</strong> lists every KnownClusterBlast hit for every region, in
-  rank order, so you can see the runners-up rather than only the top call.
-  <strong>Job info</strong> records the antiSMASH version, input filename, detection strictness,
-  record and region counts, and the source URL — enough to make the table reproducible months
-  later.</p>
-
-  <h2>Finding your results URL</h2>
-  <p>If you ran the job on the public antiSMASH server, it looks like
-  <code>https://antismash.secondarymetabolites.org/upload/bacteria-&lt;job-id&gt;/index.html</code>.
-  Copy it straight from your browser's address bar while viewing the report. A URL ending in
-  <code>#r12c1</code> because you clicked into a region is fine — the fragment is ignored.</p>
-  <p>Results from a local antiSMASH installation work too, as long as the output directory is
-  reachable over HTTP from this server.</p>
-
-  <h2>Where the numbers come from</h2>
-  <p>Every value is read from the job's own output — nothing is recomputed or re-predicted.
-  Coordinates, products, and gene counts come from <code>regions.js</code>, the data file the
-  report itself uses to draw the region views. Similarity scores come from the same file's
-  ClusterBlast, KnownClusterBlast, and SubClusterBlast result tables. Contig-edge warnings, the
-  similarity confidence call, and the antiSMASH version are read from <code>index.html</code>.</p>
-
-  <h3>A note on similarity percentages</h3>
-  <p>KnownClusterBlast ranks its hits by how many genes match, not by similarity percentage, so
-  its top-ranked hit is not always the one with the highest number. A region can rank a large,
-  partially matched cluster above a single-gene cluster scoring 100%. The
-  <strong>Similarity (%)</strong> column therefore always reports the score for the cluster named
-  in that same row, and is left blank rather than borrowing an unrelated cluster's number. The
-  full ranked list is on the second sheet if you want to judge for yourself.</p>
-
-  <h2>Limits</h2>
-  <ul>
-    <li>Built and tested against antiSMASH 8 output. Older ClusterBlast result formats are
-      handled where possible, but versions 5 to 7 have not been verified.</li>
-    <li>Very large jobs mean a large data file to parse; genome-scale runs with thousands of
-      regions may time out and are better converted locally.</li>
-    <li>If the report's data file is unavailable, the table falls back to the overview table
-      alone — fewer columns are filled, and the Job info sheet says so.</li>
-  </ul>
-
   <footer>
-    Built by <a href="https://robertsamples.com/">Robert Samples</a>.
-    antiSMASH is developed independently; this tool is an unaffiliated convenience wrapper around
-    its published output. Source and a command-line version are on
-    <a href="https://github.com/robertsamples/antismashtablewrite">GitHub</a>.
+    <p><a href="mailto:rsamples@smith.edu">rsamples@smith.edu</a> &middot; Clark Science Center, Smith College, Northampton, MA 01063</p>
+    <p><a href="https://www.science.smith.edu/cms/">Center for Mass Spectrometry</a><span class="sep">&middot;</span><a href="https://scholar.google.com/citations?user=nbPceHYAAAAJ&amp;hl=en">Google Scholar</a><span class="sep">&middot;</span><a href="https://github.com/robertsamples">GitHub</a></p>
   </footer>
-</main>
+</div>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "antiSMASH Table Converter",
-  "url": "https://robertsamples.com/antismashtableconverter/",
+  "name": "antiSMASH Table Generator",
+  "url": "https://www.robertsamples.com/antismashtableconverter/",
   "applicationCategory": "Science",
   "operatingSystem": "Any (web browser)",
-  "description": "Converts an antiSMASH results page into an Excel spreadsheet of its biosynthetic gene clusters, including coordinates, cluster class, most similar known MIBiG cluster, and similarity scores.",
+  "description": "Converts an antiSMASH results page into an .xlsx table of its biosynthetic gene clusters, including coordinates, cluster class, most similar known MIBiG cluster, and similarity scores.",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
   "author": { "@type": "Person", "name": "Robert Samples" }
 }

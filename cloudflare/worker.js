@@ -1,10 +1,10 @@
 /**
  * Cloudflare Worker: mounts the Vercel deployment under a path of the main domain, so the
- * tool lives at robertsamples.com/antismashtableconverter/ rather than on its own subdomain.
+ * tool lives at www.robertsamples.com/antismashtableconverter/ rather than on its own subdomain.
  *
  * Deploy (dashboard): Workers & Pages -> Create Worker -> paste this -> Settings -> Domains &
- * Routes -> add route `robertsamples.com/antismashtableconverter*` (and the www host if that
- * also serves the site). The zone must be proxied through Cloudflare (orange cloud).
+ * Routes -> add routes for `www.robertsamples.com/antismashtableconverter*` and the apex host.
+ * The zone must be proxied through Cloudflare (orange cloud).
  *
  * Deploy (wrangler): see cloudflare/wrangler.toml, then `npx wrangler deploy`.
  *
